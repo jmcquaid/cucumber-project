@@ -1,0 +1,11 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+import org.apache.commons.io.FileUtils
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath "commons-io:commons-io:2.4"
+	}
+}

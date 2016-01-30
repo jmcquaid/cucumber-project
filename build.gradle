@@ -1,0 +1,62 @@
+plugins {
+    id "com.github.samueltbrown.cucumber" version "0.8"
+}
+
+ext {
+    groovyVersion = '2.3.6'
+    cucumberJvmVersion = '1.1.8'
+    envDetails = [
+            // Add environments here...
+            local:  [baseUrl: 'https://mail.google.com']
+    ]
+}
+
+apply plugin: "groovy"
+apply plugin: "com.github.samueltbrown.cucumber"
+apply from: "gradle/eclipse/eclipse.gradle"
+apply from: "gradle/idea/idea.gradle"
+apply from: "gradle/ci.gradle"
+apply from: "gradle/osSpecificDownloads.gradle"
+
+repositories {
+    maven {
+        url 'http://artifactory.metadev.io/artifactory/local-repos/'
+    }
+    maven {
+        url "http://nexus2.lex-apps.co.uk/nexus/content/repositories/releases"
+    }
+    jcenter()
+}
+
+dependencies {
+    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    testCompile "info.cukes:cucumber-core:$cucumberJvmVersion"
+    testCompile "info.cukes:cucumber-groovy:$cucumberJvmVersion"
+
+    compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7'
+}
+
+cucumber {
+    formats = [
+            'pretty', // prints nice format out to the console
+            'html:build/reports/cucumber', // html
+            'junit:build/cucumber.xml' // junit format for integration with CI tool etc
+    ]
+
+    tags = (System.properties['cucumber.options'] ?: '~@wip').minus('--tags ').split('--tags')
+    jvmOptions {
+        // Set the connection details by desired environment.
+        def defaultEnv = "local"
+        envDetails[System.getProperty('env', defaultEnv)]?.with {
+            systemProperties(['baseUrl': baseUrl])
+        }
+    }
+}
+
+tasks.cucumber {
+    doFirst {
+    }
+
+    doLast{
+    }
+}
