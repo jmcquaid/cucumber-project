@@ -3,7 +3,7 @@ package steps.data.setup
 /**
  * Created by jmcquaid on 27/02/15.
  */
-class TestContext {
+class TestContext extends HashMap{
     final static String BASELINE_OPTIONS = "baselineOptions"
 
     def apiResponses = []

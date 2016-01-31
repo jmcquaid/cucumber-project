@@ -3,12 +3,11 @@ plugins {
 }
 
 ext {
-    groovyVersion = '2.3.6'
+    groovyVersion = '2.4.1'
     cucumberJvmVersion = '1.1.8'
-    envDetails = [
-            // Add environments here...
-            local:  [baseUrl: 'https://mail.google.com']
-    ]
+    spockVersion = '1.0-groovy-2.4'
+    defaultEnv = "local"
+
 }
 
 apply plugin: "groovy"
@@ -19,21 +18,17 @@ apply from: "gradle/ci.gradle"
 apply from: "gradle/osSpecificDownloads.gradle"
 
 repositories {
-    maven {
-        url 'http://artifactory.metadev.io/artifactory/local-repos/'
-    }
-    maven {
-        url "http://nexus2.lex-apps.co.uk/nexus/content/repositories/releases"
-    }
     jcenter()
 }
 
 dependencies {
-    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
-    testCompile "info.cukes:cucumber-core:$cucumberJvmVersion"
-    testCompile "info.cukes:cucumber-groovy:$cucumberJvmVersion"
-
+    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    compile "info.cukes:cucumber-core:$cucumberJvmVersion"
+    compile "info.cukes:cucumber-groovy:$cucumberJvmVersion"
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7'
+    compile "com.itextpdf:itextpdf:5.0.6"
+    testCompile "org.spockframework:spock-core:${spockVersion}"
+    testCompile 'cglib:cglib-nodep:3.2.0'
 }
 
 cucumber {
@@ -45,10 +40,30 @@ cucumber {
 
     tags = (System.properties['cucumber.options'] ?: '~@wip').minus('--tags ').split('--tags')
     jvmOptions {
-        // Set the connection details by desired environment.
-        def defaultEnv = "local"
-        envDetails[System.getProperty('env', defaultEnv)]?.with {
-            systemProperties(['baseUrl': baseUrl])
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir './src/main/java'
+        }
+        groovy {
+            srcDir './src/main/groovy'
+        }
+        resources {
+            srcDir './src/main/resources'
+        }
+    }
+    test {
+        java {
+            srcDir './src/test/java'
+        }
+        groovy {
+            srcDir './src/test/groovy'
+        }
+        resources {
+            srcDir './src/test/resources'
         }
     }
 }
